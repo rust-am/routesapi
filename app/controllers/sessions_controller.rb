@@ -1,4 +1,6 @@
 class SessionsController < ApplicationController
+  include CurrentUserConcern
+
   def create
     user = User.find_by(email: params["user"]["email"])
                .try(:authenticate, params["user"]["password"])
@@ -14,5 +16,23 @@ class SessionsController < ApplicationController
     else
       render json: { status: 401}
     end
+  end
+
+  def logged_id
+    if @current_user
+      render json: {
+        logged_id: true,
+        user: @current_user
+      }
+    else
+      render json: {
+        logged_id: false
+      }
+    end
+  end
+
+  def logout
+    reset_session
+    render json: { status: 200 }
   end
 end
